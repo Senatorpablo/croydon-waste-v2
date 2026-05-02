@@ -104,6 +104,70 @@
   .btn-secondary { background: transparent; color: var(--green-deep); border: 1.5px solid var(--green-deep); }
   .btn-secondary:hover { background: var(--green-deep); color: var(--cream); }
 
+  /* Hero badge & trust row */
+  .croydon-badge {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--terracotta); background: rgba(196, 118, 84, 0.1);
+    padding: 6px 14px; border-radius: 8px; margin-bottom: 20px;
+  }
+  .trust-row { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 32px; }
+  .trust-item {
+    font-size: 13px; color: var(--ink-soft); font-weight: 500;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .trust-item::before {
+    content: '✓'; color: var(--green-soft); font-weight: 700; font-size: 14px;
+  }
+
+  /* Hero collage cards */
+  .hero-collage { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .collage-card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 24px; transition: all 0.3s;
+  }
+  .collage-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .collage-card .label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--green-soft); margin-bottom: 8px;
+  }
+  .collage-card h3 {
+    font-size: 22px; margin-bottom: 4px; line-height: 1.2;
+  }
+  .collage-card h4 {
+    font-size: 16px; color: var(--ink-soft); line-height: 1.4;
+  }
+  .collage-1 { grid-column: 1 / -1; }
+  .collage-1-content { display: flex; justify-content: space-between; align-items: flex-end; }
+  .collage-1-content .stat {
+    font-family: 'Fraunces', serif; font-size: 42px; color: var(--green-deep); font-weight: 500;
+  }
+  .collage-1-content .stat-sub { font-size: 13px; color: var(--ink-soft); }
+  .collage-2 .pill {
+    display: inline-block; margin-top: 12px;
+    background: var(--cream-warm); color: var(--green-deep);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+  }
+  .collage-3 .testimonial-meta {
+    display: flex; align-items: center; gap: 10px; margin-top: 14px;
+  }
+  .collage-3 .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--green-soft);
+  }
+  .collage-3 .name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .collage-3 .role { font-size: 12px; color: var(--ink-soft); }
+  .collage-4 {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 8px;
+  }
+  .collage-4 svg { color: var(--green-deep); }
+  .collage-4 .badge-num {
+    font-family: 'Fraunces', serif; font-size: 28px; color: var(--green-deep); font-weight: 500;
+  }
+  .collage-4 .badge-label { font-size: 12px; color: var(--ink-soft); }
+
   /* Globe Section - Now 2nd */
   .globe-section {
     background: linear-gradient(180deg, #0a1f17 0%, #0f4c3a 100%);
@@ -254,6 +318,23 @@
     font-size: 20px; cursor: pointer;
   }
 
+  /* Social Value Quote Bar */
+  .sv-bar {
+    background: var(--green-deep); color: var(--cream);
+    padding: 80px 0; text-align: center;
+  }
+  .sv-quote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(22px, 3.5vw, 36px);
+    font-style: italic; line-height: 1.3;
+    max-width: 900px; margin: 0 auto;
+  }
+  .sv-quote .accent { color: var(--lime); }
+  .sv-attribution {
+    font-size: 14px; color: rgba(248,245,237,0.6);
+    margin-top: 20px; font-style: normal;
+  }
+
   /* Other Sections */
   section { padding: 110px 0; }
   .section-head { max-width: 760px; margin-bottom: 70px; }
@@ -331,6 +412,10 @@
     section { padding: 70px 0; }
     .globe-container { aspect-ratio: 4 / 3; }
     .globe-detail-overlay { position: relative; top: auto; right: auto; max-width: 100%; margin: 16px; }
+    .hero-collage { grid-template-columns: 1fr; }
+    .trust-row { flex-direction: column; gap: 10px; }
+    .collage-1-content { flex-direction: column; gap: 16px; }
+    .sv-quote { font-size: 22px; padding: 0 20px; }
   }
 </style>
 </head>
@@ -344,6 +429,7 @@
       <span>[Your Company]</span>
     </a>
     <div class="nav-links">
+      <a href="#globe">Network</a>
       <a href="#services">Services</a>
       <a href="#commitment">Commitment</a>
       <a href="#areas">Areas</a>
@@ -704,7 +790,15 @@ d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(w
   function unhighlightCity() {
     d3.selectAll("[class^='arc-to-']").attr("stroke", "rgba(212,237,126,0.3)").attr("stroke-width", 1.5).attr("stroke-opacity", 1);
     d3.selectAll(".city-marker").attr("opacity", 1);
-    d3.selectAll(".city-glow").attr("r", d => selectedCity && selectedCity.name === d3.select(this.parentNode).attr("class").split(' ')[1].replace('city-', '') === selectedCity.name ? 20 : 12).attr("fill", d => selectedCity && selectedCity.name === d3.select(this.parentNode).attr("class").split(' ')[1].replace('city-', '') === selectedCity.name ? "rgba(212,237,126,0.3)" : "rgba(212,237,126,0.1)");
+    d3.selectAll(".city-glow").attr("r", function() {
+      const parentClass = d3.select(this.parentNode).attr("class");
+      const cityName = parentClass.split(' ')[1].replace('city-', '');
+      return selectedCity && selectedCity.name === cityName ? 20 : 12;
+    }).attr("fill", function() {
+      const parentClass = d3.select(this.parentNode).attr("class");
+      const cityName = parentClass.split(' ')[1].replace('city-', '');
+      return selectedCity && selectedCity.name === cityName ? "rgba(212,237,126,0.3)" : "rgba(212,237,126,0.1)";
+    });
   }
   
   function selectCity(city) {
