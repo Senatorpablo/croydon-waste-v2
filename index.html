@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Croydon-born waste management. Local jobs, cleaner streets, zero landfill. Proud supporter of the Value Croydon programme." />
+<meta name="theme-color" content="#0f4c3a" />
+<title>[Your Company] — Built for Croydon. Run by Croydon.</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+<style>
+  :root {
+    --green-deep: #0f4c3a;
+    --green: #1a6b52;
+    --green-soft: #2d8b6c;
+    --lime: #d4ed7e;
+    --lime-bright: #b8e34a;
+    --cream: #f8f5ed;
+    --cream-warm: #f0ebdb;
+    --terracotta: #c47654;
+    --ink: #0d1410;
+    --ink-soft: #4a544f;
+    --line: rgba(15, 76, 58, 0.12);
+    --shadow-lg: 0 30px 70px -20px rgba(15, 76, 58, 0.3);
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--green-deep);
+  }
+  a { color: inherit; text-decoration: none; }
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 28px; }
+
+  /* Navigation */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(248, 245, 237, 0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; max-width: 1240px; margin: 0 auto;
+  }
+  .logo {
+    font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500;
+    color: var(--green-deep); display: flex; align-items: center;
+    gap: 12px; letter-spacing: -0.02em;
+  }
+  .logo-mark {
+    width: 40px; height: 40px; background: var(--green-deep);
+    border-radius: 12px; display: grid; place-items: center;
+    color: var(--lime); font-size: 20px; position: relative; overflow: hidden;
+  }
+  .nav-links { display: flex; gap: 36px; align-items: center; }
+  .nav-links a { font-size: 14px; font-weight: 500; color: var(--ink-soft); transition: color 0.2s; }
+  .nav-links a:hover { color: var(--green-deep); }
+  .nav-cta {
+    background: var(--green-deep); color: var(--cream) !important;
+    padding: 11px 22px; border-radius: 999px; font-weight: 600 !important;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover { background: var(--green); transform: translateY(-1px); }
+
+  /* Hero */
+  .hero { padding: 70px 0 90px; position: relative; overflow: hidden; }
+  .hero-bg-shape {
+    position: absolute; top: -300px; right: -200px; width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(212, 237, 126, 0.4), transparent 65%);
+    border-radius: 50%; z-index: 0;
+  }
+  .hero-grid {
+    display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 70px;
+    align-items: center; position: relative; z-index: 1;
+  }
+  h1.hero-title { font-size: clamp(44px, 7vw, 84px); margin-bottom: 28px; font-weight: 400; }
+  h1.hero-title em { font-style: italic; color: var(--terracotta); }
+  .hero-sub { font-size: 19px; color: var(--ink-soft); max-width: 540px; margin-bottom: 40px; }
+  .btn-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 17px 30px; border-radius: 999px; font-weight: 600;
+    font-size: 15px; transition: all 0.25s; cursor: pointer; border: none;
+  }
+  .btn-primary { background: var(--green-deep); color: var(--cream); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 35px -8px rgba(15, 76, 58, 0.45); }
+  .btn-secondary { background: transparent; color: var(--green-deep); border: 1.5px solid var(--green-deep); }
+  .btn-secondary:hover { background: var(--green-deep); color: var(--cream); }
+
+  /* Globe Section - Now 2nd */
+  .globe-section {
+    background: linear-gradient(180deg, #0a1f17 0%, #0f4c3a 100%);
+    padding: 80px 0 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .globe-section::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(212,237,126,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .globe-headline {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-align: center;
+    color: var(--cream);
+    margin-bottom: 20px;
+  }
+  .globe-headline em { color: var(--lime); font-style: normal; }
+  .globe-subhead {
+    text-align: center;
+    color: rgba(248,245,237,0.6);
+    font-size: 16px;
+    margin-bottom: 40px;
+  }
+
+  /* Filter Chips */
+  .globe-filters {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 40px;
+  }
+  .globe-filter-chip {
+    padding: 10px 20px; border-radius: 999px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid rgba(212,237,126,0.3);
+    color: rgba(248,245,237,0.7);
+    background: transparent;
+    transition: all 0.25s;
+    font-family: 'Inter', sans-serif;
+  }
+  .globe-filter-chip:hover {
+    border-color: var(--lime); color: var(--lime);
+    background: rgba(212,237,126,0.08);
+  }
+  .globe-filter-chip.active {
+    background: var(--lime); color: #0a1f17;
+    border-color: var(--lime); font-weight: 600;
+  }
+
+  /* Live Ticker */
+  .live-ticker {
+    display: flex; align-items: center; justify-content: center;
+    gap: 12px; margin-bottom: 40px;
+  }
+  .live-dot {
+    width: 10px; height: 10px;
+    background: #e74c3c;
+    border-radius: 50%;
+    position: relative;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+  .live-ticker-text {
+    color: rgba(248,245,237,0.8);
+    font-size: 14px;
+    font-style: italic;
+  }
+
+  /* Counters */
+  .globe-counters {
+    display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 50px;
+  }
+  .globe-counter { text-align: center; }
+  .globe-counter-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 42px; color: var(--lime); font-style: italic; font-weight: 400;
+    line-height: 1;
+  }
+  .globe-counter-num.pct { color: var(--terracotta); }
+  .globe-counter-label {
+    font-size: 12px; color: rgba(248,245,237,0.5);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-top: 6px;
+  }
+
+  /* Globe Container */
+  .globe-container {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    aspect-ratio: 2 / 1;
+  }
+  .globe-svg { width: 100%; height: 100%; cursor: grab; }
+  .globe-svg:active { cursor: grabbing; }
+
+  /* Detail Card */
+  .globe-detail-overlay {
+    position: absolute; top: 10px; right: 20px; z-index: 20;
+    max-width: 340px; pointer-events: none; opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .globe-detail-overlay.visible {
+    opacity: 1; transform: translateY(0); pointer-events: auto;
+  }
+  .globe-detail-card {
+    background: rgba(10,31,23,0.95);
+    border: 1px solid rgba(212,237,126,0.25);
+    border-radius: 16px; padding: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .globe-detail-card .city-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px; font-style: italic; color: var(--lime);
+    margin-bottom: 4px;
+  }
+  .globe-detail-card .city-role {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(248,245,237,0.5); font-weight: 600; margin-bottom: 16px;
+  }
+  .globe-detail-card .city-metric {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 36px; color: var(--cream); font-style: italic; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .globe-detail-card .city-metric-label {
+    font-size: 12px; color: rgba(248,245,237,0.5); margin-bottom: 16px;
+  }
+  .globe-detail-card .city-info {
+    font-size: 13px; color: rgba(248,245,237,0.75); line-height: 1.5;
+    margin-bottom: 12px;
+  }
+  .globe-detail-card .city-extra {
+    display: flex; gap: 20px; font-size: 11px;
+    color: rgba(248,245,237,0.45);
+    border-top: 1px solid rgba(212,237,126,0.1);
+    padding-top: 12px;
+  }
+  .globe-detail-close {
+    position: absolute; top: 8px; right: 12px;
+    background: none; border: none; color: rgba(248,245,237,0.5);
+    font-size: 20px; cursor: pointer;
+  }
+
+  /* Other Sections */
+  section { padding: 110px 0; }
+  .section-head { max-width: 760px; margin-bottom: 70px; }
+  .section-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--green-soft); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 18px;
+  }
+  .section-title { font-size: clamp(32px, 5vw, 56px); margin-bottom: 24px; }
+  .section-lead { font-size: 18px; color: var(--ink-soft); line-height: 1.5; }
+
+  /* SV Grid */
+  .sv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
+  .sv-card {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 40px; transition: all 0.3s;
+  }
+  .sv-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .sv-card-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+  }
+  .sv-badge {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 6px 12px; border-radius: 8px; background: var(--cream-warm); color: var(--green-deep);
+  }
+  .sv-card h3 { font-size: 22px; margin-bottom: 10px; }
+  .sv-card p { font-size: 15px; color: var(--ink-soft); }
+
+  /* Services */
+  .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .service-card {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 48px;
+    transition: all 0.3s; background: #fff;
+  }
+  .service-card:hover { border-color: var(--green-soft); }
+  .service-card h3 { font-size: 28px; margin-bottom: 12px; }
+  .service-card ul { margin-top: 24px; }
+  .service-card li {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; padding: 10px 0; border-bottom: 1px solid var(--line);
+  }
+
+  /* Postcodes */
+  .postcode-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .postcode-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px; border: 1px solid var(--line); border-radius: 16px;
+    background: #fff; transition: all 0.2s;
+  }
+  .postcode-card:hover { background: var(--cream-warm); }
+  .postcode-code {
+    font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500;
+    color: var(--green-deep); min-width: 56px;
+  }
+  .postcode-area { font-size: 14px; color: var(--ink-soft); }
+
+  /* Contact */
+  .contact-card {
+    max-width: 700px; margin: 0 auto;
+    background: var(--green-deep); color: var(--cream);
+    padding: 60px; border-radius: var(--radius); text-align: center;
+  }
+  .contact-card h2 { color: var(--cream); margin-bottom: 16px; }
+  .contact-email {
+    font-family: 'Fraunces', serif; font-size: 28px;
+    color: var(--lime); margin: 28px 0 12px;
+  }
+
+  /* Footer */
+  footer { padding: 50px 0; text-align: center; font-size: 13px; color: var(--ink-soft); border-top: 1px solid var(--line); }
+
+  @media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .service-grid { grid-template-columns: 1fr; }
+    section { padding: 70px 0; }
+    .globe-container { aspect-ratio: 4 / 3; }
+    .globe-detail-overlay { position: relative; top: auto; right: auto; max-width: 100%; margin: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark">♻</span>
+      <span>[Your Company]</span>
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#commitment">Commitment</a>
+      <a href="#areas">Areas</a>
+      <a href="#contact" class="nav-cta">Get a quote</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg-shape"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <div class="croydon-badge">Croydon-born & operated</div>
+        <h1 class="hero-title">Born in Croydon.<br>Built for <em>Croydon.</em></h1>
+        <p class="hero-sub">Cleaner streets. Local jobs. Zero to landfill. We're a Croydon-based waste management company on a mission to make our borough greener, cleaner, and fairer — one collection at a time.</p>
+        <div class="btn-row">
+          <a href="#contact" class="btn btn-primary">Get a free quote</a>
+          <a href="#commitment" class="btn btn-secondary">Our Croydon promise</a>
+        </div>
+        <div class="trust-row">
+          <div class="trust-item">Environment Agency licensed</div>
+          <div class="trust-item">Value Croydon partner</div>
+          <div class="trust-item">Real Living Wage employer</div>
+        </div>
+      </div>
+      <div class="hero-collage">
+        <div class="collage-card collage-1">
+          <div class="collage-1-content">
+            <div>
+              <div class="label">Landfill diversion</div>
+              <h3>94% diverted from landfill</h3>
+            </div>
+            <div>
+              <div class="stat">94%</div>
+              <div class="stat-sub">SV6 — Cleaner & Greener</div>
+            </div>
+          </div>
+        </div>
+        <div class="collage-card collage-2">
+          <div class="label">Social Value</div>
+          <h4>12+ local jobs created</h4>
+          <div class="pill">Croydon Works</div>
+        </div>
+        <div class="collage-card collage-3">
+          <div class="label">Testimonial</div>
+          <h4>"They turn up, they care, they keep our streets tidy."</h4>
+          <div class="testimonial-meta">
+            <div class="avatar"></div>
+            <div>
+              <div class="name">Local Resident</div>
+              <div class="role">CR0</div>
+            </div>
+          </div>
+        </div>
+        <div class="collage-card collage-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <div class="badge-num">£10m</div>
+          <div class="badge-label">Public liability insured</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE GLOBE SECTION - NOW 2ND -->
+<section class="globe-section" id="globe">
+  <div class="container" style="position: relative; z-index: 1;">
+    <h2 class="globe-headline">Where Croydon's waste <em>goes</em></h2>
+    <p class="globe-subhead">Click any city to explore our network. Every route tracked, every tonne accounted for.</p>
+
+    <!-- Live Ticker -->
+    <div class="live-ticker">
+      <div class="live-dot"></div>
+      <span class="live-ticker-text" id="ticker-text">Crew loading in CR0 — 2 mins ago</span>
+    </div>
+
+    <!-- Filter Chips -->
+    <div class="globe-filters">
+      <button class="globe-filter-chip active" data-filter="all">All routes (13)</button>
+      <button class="globe-filter-chip" data-filter="local">Local boroughs (5)</button>
+      <button class="globe-filter-chip" data-filter="recycling">UK recycling (8)</button>
+    </div>
+
+    <!-- Animated Counters -->
+    <div class="globe-counters">
+      <div class="globe-counter">
+        <div class="globe-counter-num" data-target="12847" data-suffix="">0</div>
+        <div class="globe-counter-label">Collections completed</div>
+      </div>
+      <div class="globe-counter">
+        <div class="globe-counter-num pct" data-target="94" data-suffix="%">0%</div>
+        <div class="globe-counter-label">Diverted from landfill</div>
+      </div>
+      <div class="globe-counter">
+        <div class="globe-counter-num" data-target="13" data-suffix="">0</div>
+        <div class="globe-counter-label">UK partner cities</div>
+      </div>
+    </div>
+
+    <!-- Globe -->
+    <div class="globe-container">
+      <svg class="globe-svg" id="globe-svg" viewBox="0 0 900 450"></svg>
+      <div class="globe-detail-overlay" id="detail-overlay">
+        <div class="globe-detail-card">
+          <button class="globe-detail-close" onclick="closeDetail()">×</button>
+          <div class="city-name" id="detail-name">City</div>
+          <div class="city-role" id="detail-role">Role</div>
+          <div class="city-metric" id="detail-metric">0</div>
+          <div class="city-metric-label" id="detail-metric-label">Metric</div>
+          <div class="city-info" id="detail-info">Info</div>
+          <div class="city-extra" id="detail-extra"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Our Croydon Commitment -->
+<section id="commitment">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Our Croydon commitment</div>
+      <h2 class="section-title">Six promises. One borough.</h2>
+      <p class="section-lead">We've built our entire business around the Council's six Social Value themes. Not because we have to — because Croydon raised us, and we believe in giving back.</p>
+    </div>
+    <div class="sv-grid">
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV1</span></div>
+        <h3>Jobs & Skills</h3>
+        <p>Every new contract creates apprenticeships and full-time roles recruited exclusively through Croydon Works. We pay the Real Living Wage from day one.</p>
+      </div>
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV2</span></div>
+        <h3>Growth</h3>
+        <p>Over 80% of our suppliers are Croydon SMEs. From the garage that services our vehicles to the printer for our paperwork — we buy local first.</p>
+      </div>
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV3</span></div>
+        <h3>Health & Wellbeing</h3>
+        <p>Mental Health First Aid trained team. Free counselling for staff. We sponsor Croydon community wellbeing events year-round.</p>
+      </div>
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV4</span></div>
+        <h3>Equality</h3>
+        <p>Our team mirrors our borough. We actively recruit from groups underrepresented in the waste industry, including people rebuilding their lives.</p>
+      </div>
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV5</span></div>
+        <h3>Stronger Communities</h3>
+        <p>Free fly-tip clearance for community groups, schools and TRAs. We've cleared over 40 sites for free since launching.</p>
+      </div>
+      <div class="sv-card">
+        <div class="sv-card-header"><span class="sv-badge">SV6</span></div>
+        <h3>Cleaner & Greener</h3>
+        <p>94% of waste diverted from landfill today. Investing in electric tippers and HVO biofuel to hit net zero by 2030.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quote Bar -->
+<div class="sv-bar">
+  <div class="container">
+    <p class="sv-quote">"Social Value is not a tick-box exercise; it is a true purpose and responsibility to deliver and give back to <span class="accent">Croydon residents and businesses.</span>"</p>
+    <p class="sv-attribution">— A principle we live by every day</p>
+  </div>
+</div>
+
+<!-- What We Do -->
+<section id="services">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">What we do</div>
+      <h2 class="section-title">Two services. One standard.</h2>
+    </div>
+    <div class="service-grid">
+      <div class="service-card">
+        <h3>For the Council & Public Sector</h3>
+        <p>Framework-ready partner for Croydon Council contracts. Built to meet Procurement Act 2023, Social Value, and CDP requirements.</p>
+        <ul>
+          <li>Bulky waste, fly-tip clearance, void property work</li>
+          <li>Trade waste collections for council-managed assets</li>
+          <li>Monthly Social Value dashboards</li>
+          <li>Full integration with Croydon's Oracle supplier system</li>
+          <li>CHAS / SafeContractor / Constructionline accredited</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <h3>For Businesses & Residents</h3>
+        <p>Reliable, transparent, properly priced. Trade waste contracts, house clearances, builder's waste, office strip-outs.</p>
+        <ul>
+          <li>Same-day collection across all CR postcodes</li>
+          <li>Fixed monthly trade waste contracts (no surprises)</li>
+          <li>Photo-quote in 15 minutes via WhatsApp</li>
+          <li>Free fly-tip removal for residents' associations</li>
+          <li>£10m public liability insurance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Where We Serve -->
+<section id="areas">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">Where we serve</div>
+      <h2 class="section-title">Every corner of our borough.</h2>
+      <p class="section-lead">Same-day collection across all Croydon postcodes. We know every estate, every high street, every back alley — because we live here.</p>
+    </div>
+    <div class="postcode-grid">
+      <div class="postcode-card"><span class="postcode-code">CR0</span><span class="postcode-area">Croydon, Addiscombe</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR2</span><span class="postcode-area">South Croydon, Sanderstead</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR3</span><span class="postcode-area">Caterham, Whyteleafe</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR4</span><span class="postcode-area">Mitcham</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR5</span><span class="postcode-area">Coulsdon, Old Coulsdon</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR6</span><span class="postcode-area">Warlingham</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR7</span><span class="postcode-area">Thornton Heath</span></div>
+      <div class="postcode-card"><span class="postcode-code">CR8</span><span class="postcode-area">Purley, Kenley</span></div>
+      <div class="postcode-card"><span class="postcode-code">SE25</span><span class="postcode-area">South Norwood</span></div>
+      <div class="postcode-card"><span class="postcode-code">SE19</span><span class="postcode-area">Crystal Palace</span></div>
+      <div class="postcode-card"><span class="postcode-code">SE20</span><span class="postcode-area">Penge, Anerley</span></div>
+      <div class="postcode-card"><span class="postcode-code">BR3</span><span class="postcode-area">Beckenham</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-card">
+      <h2>Let's clean up Croydon, together.</h2>
+      <p>Whether you're a council officer, business owner, or Croydon resident — we respond within 15 minutes during working hours.</p>
+      <div class="contact-email">hello@[yourcompany].co.uk</div>
+      <p style="opacity: 0.7;">Or WhatsApp us for a photo-quote in 15 minutes</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>Environment Agency licensed • Value Croydon partner • Real Living Wage employer</p>
+    <p style="margin-top: 8px; opacity: 0.6;">Built in Croydon. Run by Croydon.</p>
+  </div>
+</footer>
+
+<script>
+// ── INTERACTIVE GLOBE ─────────────────────────────────────
+
+const width = 900, height = 450;
+const svg = d3.select("#globe-svg");
+const projection = d3.geoOrthographic().scale(180).translate([width/2, height/2]).clipAngle(90);
+const path = d3.geoPath().projection(projection);
+
+// Cities data with categories
+const cities = [
+  { name: "Croydon", lat: 51.3762, lng: -0.0982, role: "Home Base", metric: "47", metricLabel: "crew members", info: "47 crew members, 6am daily start. All crews live in CR postcodes. Real Living Wage from day one.", distance: "0", time: "Same day", category: "local", connections: ["Bromley", "Mitcham", "Caterham"] },
+  { name: "Bromley", lat: 51.4060, lng: 0.0152, role: "Local Partner", metric: "14", metricLabel: "active contracts", info: "14 active contracts including 3 care homes. 1h 45min average response time. CHAS accredited.", distance: "8", time: "1h 45min", category: "local", connections: ["Croydon"] },
+  { name: "Manchester", lat: 53.4808, lng: -2.2426, role: "Recycling Partner", metric: "1,840", metricLabel: "tonnes in 2025", info: "Mixed plastics & textiles partner. Full Waste Transfer Notes. Monthly tonnage reports.", distance: "200", time: "4h", category: "recycling", connections: ["Croydon"] },
+  { name: "Glasgow", lat: 55.8609, lng: -4.2514, role: "Hazardous Waste", metric: "SEPA", metricLabel: "licensed", info: "SEPA-licensed hazardous waste handling. Asbestos, batteries, chemicals with full consignment notes.", distance: "400", time: "6h", category: "recycling", connections: ["Croydon"] },
+  { name: "Cardiff", lat: 51.4816, lng: -3.1791, role: "C&D Recycling", metric: "92%", metricLabel: "recovery rate", info: "Concrete crushed into Type 1 aggregate. Construction & demolition recycling specialist.", distance: "150", time: "3h 30min", category: "recycling", connections: ["Croydon"] }
+];
+
+let currentFilter = 'all';
+let selectedCity = null;
+let rotation = { x: -20, y: 0 };
+let isDragging = false;
+
+// Load world data
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(world => {
+  const land = topojson.feature(world, world.objects.countries);
+  
+  // Draw ocean
+  svg.append("circle").attr("cx", width/2).attr("cy", height/2).attr("r", 180).attr("fill", "#0d2820").attr("stroke", "rgba(212,237,126,0.1)").attr("stroke-width", 1);
+  
+  // Draw land
+  const landPath = svg.append("g").selectAll("path").data(land.features).enter().append("path").attr("d", path).attr("fill", "#1a4a3a").attr("stroke", "rgba(212,237,126,0.08)").attr("stroke-width", 0.5);
+  
+  // Arcs group
+  const arcsGroup = svg.append("g").attr("class", "arcs");
+  
+  // Cities group
+  const citiesGroup = svg.append("g").attr("class", "cities");
+  
+  // Draw arcs (great circles)
+  const croydon = cities[0];
+  function drawArcs() {
+    arcsGroup.selectAll("*").remove();
+    
+    cities.forEach((city, i) => {
+      if (i === 0) return; // Skip Croydon as source
+      if (currentFilter !== 'all' && city.category !== currentFilter && currentFilter !== 'local') return;
+      if (currentFilter === 'local' && city.category !== 'local') return;
+      
+      const source = projection([croydon.lng, croydon.lat]);
+      const target = projection([city.lng, city.lat]);
+      
+      if (!source || !target) return;
+      
+      // Great circle arc
+      const interpolate = d3.geoInterpolate([croydon.lng, croydon.lat], [city.lng, city.lat]);
+      const points = d3.range(0, 1, 0.02).map(t => {
+        const p = interpolate(t);
+        return projection(p);
+      }).filter(p => p);
+      
+      const line = d3.line().curve(d3.curveBasis);
+      
+      arcsGroup.append("path")
+        .attr("d", line(points))
+        .attr("fill", "none")
+        .attr("stroke", "rgba(212,237,126,0.3)")
+        .attr("stroke-width", 1.5)
+        .attr("class", `arc-to-${city.name}`);
+    });
+  }
+  
+  // Draw cities
+  function drawCities() {
+    citiesGroup.selectAll("*").remove();
+    
+    cities.forEach(city => {
+      if (currentFilter !== 'all' && city.category !== currentFilter) return;
+      
+      const pos = projection([city.lng, city.lat]);
+      if (!pos) return;
+      
+      const isSelected = selectedCity && selectedCity.name === city.name;
+      
+      const g = citiesGroup.append("g").attr("class", `city-marker city-${city.name}`).style("cursor", "pointer");
+      
+      // Glow
+      g.append("circle").attr("cx", pos[0]).attr("cy", pos[1]).attr("r", isSelected ? 20 : 12).attr("fill", isSelected ? "rgba(212,237,126,0.3)" : "rgba(212,237,126,0.1)").attr("class", "city-glow");
+      
+      // Core
+      g.append("circle").attr("cx", pos[0]).attr("cy", pos[1]).attr("r", isSelected ? 8 : 5).attr("fill", isSelected ? "#d4ed7e" : "#2d8b6c").attr("stroke", "#d4ed7e").attr("stroke-width", isSelected ? 3 : 1).attr("class", "city-core");
+      
+      // Label
+      g.append("text").attr("x", pos[0]).attr("y", pos[1] - 15).attr("text-anchor", "middle").attr("fill", "rgba(248,245,237,0.9)").attr("font-size", "11px").attr("font-weight", "600").text(city.name);
+      
+      // Events
+      g.on("mouseenter", () => highlightCity(city));
+      g.on("mouseleave", () => unhighlightCity());
+      g.on("click", () => selectCity(city));
+    });
+  }
+  
+  function highlightCity(city) {
+    d3.selectAll(".arc-to-" + city.name).attr("stroke", "rgba(212,237,126,0.9)").attr("stroke-width", 2.5);
+    d3.selectAll("[class^='arc-to-']:not(.arc-to-" + city.name + ")").attr("stroke-opacity", 0.1);
+    d3.selectAll(".city-marker:not(.city-" + city.name + ")").attr("opacity", 0.3);
+    d3.select(".city-" + city.name + " .city-glow").attr("r", 25).attr("fill", "rgba(212,237,126,0.4)");
+  }
+  
+  function unhighlightCity() {
+    d3.selectAll("[class^='arc-to-']").attr("stroke", "rgba(212,237,126,0.3)").attr("stroke-width", 1.5).attr("stroke-opacity", 1);
+    d3.selectAll(".city-marker").attr("opacity", 1);
+    d3.selectAll(".city-glow").attr("r", d => selectedCity && selectedCity.name === d3.select(this.parentNode).attr("class").split(' ')[1].replace('city-', '') === selectedCity.name ? 20 : 12).attr("fill", d => selectedCity && selectedCity.name === d3.select(this.parentNode).attr("class").split(' ')[1].replace('city-', '') === selectedCity.name ? "rgba(212,237,126,0.3)" : "rgba(212,237,126,0.1)");
+  }
+  
+  function selectCity(city) {
+    selectedCity = city;
+    const targetRotation = { x: -city.lng, y: -city.lat };
+    
+    d3.transition().duration(1000).ease(d3.easeCubicInOut).tween("rotate", () => {
+      const i = d3.interpolate(rotation, targetRotation);
+      return t => {
+        rotation = i(t);
+        projection.rotate([rotation.x, rotation.y]);
+        landPath.attr("d", path);
+        drawArcs();
+        drawCities();
+      };
+    }).on("end", () => showDetail(city));
+  }
+  
+  function showDetail(city) {
+    document.getElementById('detail-name').textContent = city.name;
+    document.getElementById('detail-role').textContent = city.role;
+    document.getElementById('detail-metric').textContent = city.metric;
+    document.getElementById('detail-metric-label').textContent = city.metricLabel;
+    document.getElementById('detail-info').textContent = city.info;
+    document.getElementById('detail-extra').innerHTML = `
+      <span>Distance<br><strong>${city.distance} mi</strong></span>
+      <span>Journey<br><strong>${city.time}</strong></span>
+    `;
+    document.getElementById('detail-overlay').classList.add('visible');
+  }
+  
+  window.closeDetail = function() {
+    document.getElementById('detail-overlay').classList.remove('visible');
+    selectedCity = null;
+    drawCities();
+  };
+  
+  // Filter chips
+  document.querySelectorAll('.globe-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.globe-filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      drawArcs();
+      drawCities();
+      closeDetail();
+    });
+  });
+  
+  // Drag to rotate
+  let dragStart;
+  svg.call(d3.drag().on("start", e => {
+    isDragging = true;
+    dragStart = [e.x, e.y];
+  }).on("drag", e => {
+    if (!isDragging) return;
+    const dx = e.x - dragStart[0];
+    const dy = e.y - dragStart[1];
+    rotation.x += dx * 0.3;
+    rotation.y -= dy * 0.3;
+    projection.rotate([rotation.x, rotation.y]);
+    landPath.attr("d", path);
+    drawArcs();
+    drawCities();
+    dragStart = [e.x, e.y];
+  }).on("end", () => { isDragging = false; }));
+  
+  // Auto-rotate slowly
+  let autoRotate = d3.timer(elapsed => {
+    if (!isDragging && !selectedCity) {
+      rotation.x += 0.05;
+      projection.rotate([rotation.x, rotation.y]);
+      landPath.attr("d", path);
+      drawArcs();
+      drawCities();
+    }
+  });
+  
+  // Initial draw
+  projection.rotate([rotation.x, rotation.y]);
+  landPath.attr("d", path);
+  drawArcs();
+  drawCities();
+});
+
+// ── ANIMATED COUNTERS ───────────────────────────────────
+
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  const duration = 2000;
+  const start = performance.now();
+  
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+    const current = Math.round(eased * target);
+    el.textContent = current.toLocaleString() + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  
+  requestAnimationFrame(update);
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(entry.target);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.globe-counter-num').forEach(el => observer.observe(el));
+
+// ── LIVE TICKER ──────────────────────────────────────────
+
+const tickerMessages = [
+  "Crew loading in CR0 — 2 mins ago",
+  "Recycling delivered to Manchester — 14 mins ago",
+  "Fly-tip cleared in CR7 (free for TRA) — 22 mins ago",
+  "Type 1 aggregate collected from Cardiff — 31 mins ago",
+  "Hazardous consignment dispatched to Glasgow — 8 mins ago",
+  "Bulky waste collected in CR2 — 5 mins ago",
+  "Trade waste serviced in Bromley — 18 mins ago",
+  "Office strip-out completed in SE25 — 45 mins ago"
+];
+
+let tickerIndex = 0;
+setInterval(() => {
+  tickerIndex = (tickerIndex + 1) % tickerMessages.length;
+  const el = document.getElementById('ticker-text');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = tickerMessages[tickerIndex];
+    el.style.opacity = '1';
+  }, 300);
+}, 4000);
+
+// Smooth opacity transition for ticker
+document.getElementById('ticker-text').style.transition = 'opacity 0.3s';
+</script>
+
+</body>
+</html>
